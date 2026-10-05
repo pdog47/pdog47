@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>WallEcho</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Your Peglin install. Override on the command line: dotnet build -p:PeglinDir="D:\Games\Peglin" -->
+    <PeglinDir Condition="'$(PeglinDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Peglin</PeglinDir>
+    <BepInExCore Condition="'$(BepInExCore)' == ''">$(PeglinDir)\BepInEx\core</BepInExCore>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Compile-time only; the game ships its own copies at runtime. -->
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" PrivateAssets="all" />
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExCore)\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Copies the built DLL into BepInEx\plugins when the Peglin folder exists. -->
+  <Target Name="CopyToPeglin" AfterTargets="Build" Condition="Exists('$(PeglinDir)\BepInEx\plugins')">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PeglinDir)\BepInEx\plugins\WallEcho" />
+  </Target>
+
+</Project>
