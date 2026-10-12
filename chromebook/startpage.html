@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home</title>
+<style>
+  :root { --bg:#0e1116; --fg:#e6e8eb; --dim:#7d8590; --accent:#58a6ff; --card:#161b22; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#f6f7f9; --fg:#1b1f24; --dim:#6a737d; --accent:#0969da; --card:#ffffff; }
+  }
+  * { box-sizing:border-box; margin:0; }
+  html, body { height:100%; }
+  body { background:var(--bg); color:var(--fg); font:16px/1.4 system-ui, sans-serif;
+         display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; padding:16px; }
+  #time { font-size:clamp(56px, 12vw, 120px); font-weight:200; letter-spacing:-2px; font-variant-numeric:tabular-nums; }
+  #greet { color:var(--dim); margin-top:-20px; }
+  form { width:min(560px, 100%); }
+  input { width:100%; padding:14px 18px; border-radius:999px; border:1px solid transparent;
+          background:var(--card); color:var(--fg); font-size:17px; outline:none; }
+  input:focus { border-color:var(--accent); }
+  nav { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:640px; }
+  nav a { padding:8px 14px; border-radius:10px; background:var(--card); color:var(--fg); text-decoration:none; font-size:14px; }
+  nav a:hover, nav a:focus { color:var(--accent); }
+  nav kbd { color:var(--dim); font-size:12px; margin-right:6px; }
+</style>
+</head>
+<body>
+  <div id="time">--:--</div>
+  <div id="greet"></div>
+  <form action="https://duckduckgo.com/" method="get">
+    <input name="q" placeholder="Search or press 1-9 for a link" autocomplete="off" autofocus>
+  </form>
+  <nav id="links"></nav>
+<script>
+  // Edit your links here. First 9 get number-key shortcuts.
+  const LINKS = [
+    ["Gmail", "https://mail.google.com"],
+    ["Calendar", "https://calendar.google.com"],
+    ["YouTube", "https://www.youtube.com"],
+    ["Reddit", "https://www.reddit.com"],
+    ["Claude", "https://claude.ai"],
+    ["GitHub", "https://github.com"],
+  ];
+
+  const nav = document.getElementById("links");
+  LINKS.forEach(([name, url], i) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.innerHTML = (i < 9 ? `<kbd>${i + 1}</kbd>` : "") + name;
+    nav.appendChild(a);
+  });
+
+  const input = document.querySelector("input");
+  document.addEventListener("keydown", e => {
+    if (input.value === "" && /^[1-9]$/.test(e.key) && LINKS[e.key - 1]) {
+      e.preventDefault();
+      location.href = LINKS[e.key - 1][1];
+    }
+  });
+
+  function tick() {
+    const d = new Date();
+    document.getElementById("time").textContent =
+      d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    const h = d.getHours();
+    document.getElementById("greet").textContent =
+      (h < 12 ? "Morning" : h < 18 ? "Afternoon" : "Evening") + " · " +
+      d.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+  }
+  tick();
+  // Only wake up once a minute, right on the minute. Basically zero CPU.
+  setTimeout(() => { tick(); setInterval(tick, 60000); }, (60 - new Date().getSeconds()) * 1000);
+</script>
+</body>
+</html>
